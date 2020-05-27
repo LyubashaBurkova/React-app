@@ -1,9 +1,11 @@
 import React, {Component} from 'react';
 import classes from './Quiz.module.css';
 import ActiveQuiz from '../../component/ActiveQuiz/ActiveQuiz';
+import FinishedQuiz from '../../component/FinishedQuiz/FinishedQuiz';
 
 class Quiz extends Component {
     state = {
+        isFinished: true,
         activeQestion: 0,
         answerState: null,//{[id]: 'success' 'error'}
         quiz: [
@@ -33,6 +35,14 @@ class Quiz extends Component {
     }
 
     onAnswerClickHendler = (answerId) => {
+        //при правильном ответе можно успеть нажать на элемент во время переключения вопроса
+        if (this.state.answerState){
+            const key = Object.keys(this.state.answerState)[0]; //вытаскиваем значение ключа
+            if (this.state.answerState[key] === 'success'){
+                return 
+            }
+        }
+
         const question = this.state.quiz[this.state.activeQestion];
 
         if (question.rightAnswer === answerId){
@@ -42,8 +52,10 @@ class Quiz extends Component {
             });
 
             const timeout = window.setTimeout(() => {
-                if (this.isQuizFinished()){
-                    console.log('Finished')
+                if (this.isQuizFinished()){                    
+                    this.setState({
+                        isFinished: true
+                    })
                 }else{
                     this.setState({
                         activeQestion: this.state.activeQestion + 1,
@@ -71,14 +83,19 @@ class Quiz extends Component {
             <div className={classes.Quiz}>                
                 <div  className={classes.QuizWrapper}> 
                 <h1>Ответьте на все вопросы</h1>
-                    <ActiveQuiz 
-                    answers = {this.state.quiz[this.state.activeQestion].answers}
-                    question = {this.state.quiz[this.state.activeQestion].question}
-                    onAnswerClick = {this.onAnswerClickHendler}
-                    quizLength={this.state.quiz.length}
-                    answerNumber={this.state.activeQestion + 1}
-                    state={this.state.answerState}
-                    />                    
+                {
+                    this.state.isFinished
+                    ? <FinishedQuiz></FinishedQuiz>
+                    : <ActiveQuiz 
+                        answers = {this.state.quiz[this.state.activeQestion].answers}
+                        question = {this.state.quiz[this.state.activeQestion].question}
+                        onAnswerClick = {this.onAnswerClickHendler}
+                        quizLength={this.state.quiz.length}
+                        answerNumber={this.state.activeQestion + 1}
+                        state={this.state.answerState}
+                      />  
+                }
+                                  
                 </div>
             </div>
         )
