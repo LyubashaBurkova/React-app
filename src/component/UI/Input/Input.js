@@ -1,11 +1,11 @@
 import React from 'react';
 import classes from './Input.module.css';
 
-const Input = props => {
+function isInvalid({valid, touched, shouldValidate}) {
+    return !valid && shouldValidate && touched
+}
 
-    function isInvalid({valid, touched, sholdValidate}) {
-        return !valid && sholdValidate && touched
-    }
+const Input = props => {
 
     const cls = [
         classes.Input
@@ -26,7 +26,7 @@ const Input = props => {
                 id={htmlFor}
                 value={props.value}
                 onChange={props.onChange}
-            />
+            />           
             {isInvalid(props) 
             ? <span>{props.errorMessage || 'Введите верное значение'}</span>
             : null
