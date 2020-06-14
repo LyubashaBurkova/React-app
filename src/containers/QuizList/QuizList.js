@@ -3,7 +3,7 @@ import { render } from '@testing-library/react';
 import {NavLink} from 'react-router-dom'
 import classes from './QuizList.module.css';
 import Loader from '../../component/UI/Loader/Loader'
-import axios from 'axios'
+import axios from '../../axios/axios-quiz'
 
 export default class QuizList extends Component {
 

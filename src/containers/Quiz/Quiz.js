@@ -2,129 +2,121 @@ import React, {Component} from 'react';
 import classes from './Quiz.module.css';
 import ActiveQuiz from '../../component/ActiveQuiz/ActiveQuiz';
 import FinishedQuiz from '../../component/FinishedQuiz/FinishedQuiz';
+import axios from '../../axios/axios-quiz'
+import Loader from '../../component/UI/Loader/Loader'
 
 class Quiz extends Component {
-    state = {
-        results:{},//{[id]: 'success' 'error'}
-        isFinished: false,
-        activeQestion: 0,
-        answerState: null,//{[id]: 'success' 'error'}
-        quiz: [
-            {
-                question: 'Какого цвета небо?',
-                rightAnswer: 2,
-                id: 1,
-                answers: [
-                    {text: 'Черный', id: 1},
-                    {text: 'Синий', id: 2},
-                    {text: 'Красный', id: 3},
-                    {text: 'Зеленый', id: 4}
-                ]
-            },
-            {
-                question: 'В каком году основали Санкт-Петербург?',
-                rightAnswer: 3,
-                id: 2,
-                answers: [
-                    {text: '1700', id: 1},
-                    {text: '1702', id: 2},
-                    {text: '1703', id: 3},
-                    {text: '1803', id: 4}
-                ]
-            }
-        ]
+  state = {
+    results: {},
+    isFinished: false,
+    activeQuestion: 0,
+    answerState: null,
+    quiz: [],
+    loading: true
+  }
+
+  onAnswerClickHandler = answerId => {
+      //при правильном ответе можно успеть нажать на элемент во время переключения вопроса
+    if (this.state.answerState){
+      const key = Object.keys(this.state.answerState)[0]; //вытаскиваем значение ключа
+      if (this.state.answerState[key] === 'success'){
+        return
+      }
     }
 
-    onAnswerClickHendler = (answerId) => {
-        //при правильном ответе можно успеть нажать на элемент во время переключения вопроса
-        if (this.state.answerState){
-            const key = Object.keys(this.state.answerState)[0]; //вытаскиваем значение ключа
-            if (this.state.answerState[key] === 'success'){
-                return 
-            }
-        }
+    const question = this.state.quiz[this.state.activeQuestion]
+    const results = this.state.results
 
-        //question - вопрос на котором находимся
-        const question = this.state.quiz[this.state.activeQestion];
-        //results - объект в котором собирается инфа по всем вопросам
-        const results = this.state.results;
+    if (question.rightAnswerId === answerId) {
+      if (!results[question.id]) {
+        results[question.id] = 'success'
+      }
+      this.setState({
+        answerState: {[answerId]: 'success'},
+        results
+      });
 
-        if (question.rightAnswer === answerId){
-            if (!results[question.id]){
-                results[question.id]='success';
-            }
-            this.setState({
-                answerState: {[answerId]: 'success'},
-                results
-            });
-
-            const timeout = window.setTimeout(() => {
-                if (this.isQuizFinished()){                    
-                    this.setState({
-                        isFinished: true
-                    })
-                }else{
-                    this.setState({
-                        activeQestion: this.state.activeQestion + 1,
-                        answerState: null
-                    })
-                }
-
-                window.clearTimeout(timeout)
-            }, 1000);
-            
+      const timeout = window.setTimeout(() => {
+        if (this.isQuizFinished()){
+          this.setState({
+            isFinished: true
+          })
         }else{
-            results[question.id] ='error';
-
-            this.setState({
-                answerState: {[answerId]: 'error'},
-                results,//results: results ключ значение совпадает
-            })
+          this.setState({
+            activeQuestion: this.state.activeQuestion + 1,
+            answerState: null
+          })
         }
-        
-    }  
 
-    isQuizFinished(){
-        return this.state.activeQestion + 1 === this.state.quiz.length
+        window.clearTimeout(timeout)
+      }, 1000);
+
+    }else{
+      results[question.id] ='error';
+
+      this.setState({
+        answerState: {[answerId]: 'error'},
+        results,//results: results ключ значение совпадает
+      })
     }
 
+  }
+
+  isQuizFinished() {
+    return this.state.activeQuestion + 1 === this.state.quiz.length
+  }
     //мы передаем функцию в дочерний компонент
     //либо bind, либо стрелочная функция
-    onRetryHandler = () => {
-        this.setState({
-            activeQestion: 0,
-            answerState: null,
-            isFinished: false,
-            results: {}
-        })
-    }
+  retryHandler = () => {
+    this.setState({
+      activeQuestion: 0,
+      answerState: null,
+      isFinished: false,
+      results: {}
+    })
+  }
 
-    render() {
-        return(
-            <div className={classes.Quiz}>                
-                <div  className={classes.QuizWrapper}> 
-                <h1>Ответьте на все вопросы</h1>
-                {
-                    this.state.isFinished
-                    ? <FinishedQuiz 
-                        results={this.state.results}
-                        quiz={this.state.quiz}   
-                        onRetry={this.onRetryHandler}                  
-                       />
-                    : <ActiveQuiz 
-                        answers = {this.state.quiz[this.state.activeQestion].answers}
-                        question = {this.state.quiz[this.state.activeQestion].question}
-                        onAnswerClick = {this.onAnswerClickHendler}
-                        quizLength={this.state.quiz.length}
-                        answerNumber={this.state.activeQestion + 1}
-                        state={this.state.answerState}
-                      />  
-                }
-                                  
-                </div>
-            </div>
-        )
+  async componentDidMount() {
+    try {
+      const response = await axios.get(`/quizes/${this.props.match.params.id}.json`)
+      const quiz = response.data
+
+      this.setState({
+        quiz,
+        loading: false
+      })
+    } catch (e) {
+      console.log(e)
     }
+  }
+
+  render() {
+    return (
+      <div className={classes.Quiz}>
+        <div  className={classes.QuizWrapper}>
+          <h1>Ответьте на все вопросы</h1>
+          {
+            this.state.loading
+             ? <Loader />
+             : this.state.isFinished
+              ? <FinishedQuiz
+                results={this.state.results}
+                quiz={this.state.quiz}
+                onRetry={this.retryHandler}
+              />
+              : <ActiveQuiz
+                answers={this.state.quiz[this.state.activeQuestion].answers}
+                question={this.state.quiz[this.state.activeQuestion].question}
+                onAnswerClick={this.onAnswerClickHandler}
+                quizLength={this.state.quiz.length}
+                answerNumber={this.state.activeQuestion + 1}
+                state={this.state.answerState}
+              />
+          }
+        </div>
+      </div>
+    )
+  }
 }
 
 export default Quiz;
