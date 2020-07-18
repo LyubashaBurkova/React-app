@@ -6,7 +6,6 @@ import {createControl, validate, validateForm} from '../../form/formFramework';
 import Input from '../../component/UI/Input/Input';
 import Select from '../../component/UI/Select/Select';
 import Auxiliary from '../../hoc/Auxiliary/Auxiliaty';
-import axios from '../../axios/axios-quiz'
 import {createQuizQuestion, finishCreteQuiz} from '../../store/actions/create'
 
 function createOptionControl(number){

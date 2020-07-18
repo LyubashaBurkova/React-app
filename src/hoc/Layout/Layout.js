@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import { render } from '@testing-library/react';
 import classes from './Layout.module.css';
 import MenuToggle from '../../component/Navigation/MenuToggle/MenuToggle';
 import Drawer from '../../component/Navigation/Drawer/Drawer'

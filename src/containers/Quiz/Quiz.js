@@ -3,7 +3,6 @@ import {connect} from 'react-redux'
 import classes from './Quiz.module.css';
 import ActiveQuiz from '../../component/ActiveQuiz/ActiveQuiz';
 import FinishedQuiz from '../../component/FinishedQuiz/FinishedQuiz';
-import axios from '../../axios/axios-quiz'
 import Loader from '../../component/UI/Loader/Loader'
 import {fetchQuizById, quizAnswerClick, retryQuiz} from '../../store/actions/quiz'
 

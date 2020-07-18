@@ -3,7 +3,7 @@ import {
     AUTH_SUCCESS,
     AUTH_LOGOUT
 } from './actionTypes'
-import { date } from 'is_js'
+//import { date } from 'is_js'
 
 
 export function auth(email, password, isLogin) {
@@ -26,7 +26,7 @@ export function auth(email, password, isLogin) {
 
         const data = response.data
 
-        const expirationDate = new Date(new Date().getTime() + date.expiresIn * 1000)//правильная дата
+        //const expirationDate = new Date(new Date().getTime() + date.expiresIn * 1000)//правильная дата
 
         localStorage.setItem('token', data.idToken)
         localStorage.setItem('userId', data.localId)
