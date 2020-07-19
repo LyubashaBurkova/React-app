@@ -26,11 +26,12 @@ export function auth(email, password, isLogin) {
 
         const data = response.data
 
-        //const expirationDate = new Date(new Date().getTime() + date.expiresIn * 1000)//правильная дата
+        const expirationDate = new Date(new Date().getTime() + data.expiresIn * 1000)//правильная дата
 
+        console.log('expirationDate1', expirationDate)
         localStorage.setItem('token', data.idToken)
         localStorage.setItem('userId', data.localId)
-        localStorage.setItem('expirationDate', data.expirationDate)
+        localStorage.setItem('expirationDate', expirationDate)
 
         dispatch(authSuccess(data.idToken))
         dispatch(autoLogout(data.expiresIn))
@@ -59,5 +60,22 @@ export function logout() {
 
     return {
         type: AUTH_LOGOUT
+    }
+}
+
+export function autoLogin(){
+    return dispatch => {
+        const token = localStorage.getItem('token')
+        if(!token){
+            dispatch(logout())
+        }else{
+            const expirationDate = new Date(localStorage.getItem('expirationDate'))
+            if (expirationDate <= new Date()){
+                dispatch(logout())
+            }else{
+               dispatch(authSuccess(token))               
+               dispatch(autoLogout((expirationDate.getTime() - new Date().getTime()) / 1000))
+            }
+        }
     }
 }
